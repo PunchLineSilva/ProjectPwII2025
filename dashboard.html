@@ -16,7 +16,7 @@
     <div class="sidebar-header">
       <div class="logo">
         <span class="logo-icon"></span>
-        <a href="index.html"><h1>FillTime</h1></a>
+        <h1>FillTime</h1>
       </div>
       <button class="sidebar-toggle" aria-label="Fechar menu"></button>
     </div>
@@ -33,7 +33,7 @@
     </nav>
     
     <div class="sidebar-footer">
-      <a href="faq.html" class="help-link">
+      <a href="#" class="help-link">
         <span class="help-icon"></span>
         <span>Ajuda</span>
       </a>
@@ -45,7 +45,13 @@
       <div class="search-container">
         <span class="search-icon"></span>
         <input type="search" placeholder="Buscar...">
+        
       </div>
+          <teste id="notificationBtn">
+          </teste>
+          <div class="notifications-dropdown" id="notificationsDropdown">
+          </div>
+        </div>
         
         <div class="user-profile" id="userProfile">
           <div class="user-avatar"></div>
@@ -65,6 +71,7 @@
                 <span class="profile-icon"></span>
                 <span>Meu Perfil</span>
               </a>
+
               <a href="#" class="profile-menu-item danger">
                 <span class="profile-icon"></span>
                 <span>Sair</span>
@@ -78,7 +85,7 @@
     <section class="welcome-section">
       <div class="welcome-content">
         <h1>Olá, Marina!</h1>
-        <p>Gerencie seus estabelecimentos, agendamentos e acompanhe o desempenho do seu negócio</p>
+        <p>Gerencie seus recursos, agendamentos e acompanhe o desempenho do seu negócio</p>
       </div>
       
       <div class="date-range-picker">
@@ -139,10 +146,10 @@
 
     <section class="resources-section">
       <div class="section-header">
-        <h2>Meus Estabelecimentos</h2>
+        <h2>Meus Recursos</h2>
         <button class="btn btn-primary" id="addResourceBtn">
           <span class="plus-icon"></span>
-          Adicionar Estabelecimento
+          Adicionar Recurso
         </button>
       </div>
       
@@ -569,6 +576,90 @@
     </div>
   </div>
 
+  <div class="modal" id="addResourceModal">
+    <div class="modal-content large">
+      <div class="modal-header">
+        <h3>Adicionar Novo Recurso</h3>
+        <button class="close-btn" aria-label="Fechar">&times;</button>
+      </div>
+      
+      <form class="appointment-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="resource-name">Nome do Recurso</label>
+            <input type="text" id="resource-name" required>
+          </div>
+
+          <div class="form-group">
+            <label for="resource-type">Tipo de Recurso</label>
+            <select id="resource-type" required>
+              <option value="">Selecione o tipo</option>
+              <option value="quadra">Quadra Esportiva</option>
+              <option value="sala">Sala de Reunião</option>
+              <option value="equipamento">Equipamento</option>
+              <option value="espaco">Espaço para Eventos</option>
+              <option value="outro">Outro</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="resource-location">Localização</label>
+            <input type="text" id="resource-location" required>
+          </div>
+
+          <div class="form-group">
+            <label for="resource-price">Valor por Hora (R$)</label>
+            <input type="number" id="resource-price" min="0" step="0.01" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="resource-capacity">Capacidade (pessoas)</label>
+            <input type="number" id="resource-capacity" min="1" required>
+          </div>
+
+          <div class="form-group">
+            <label for="resource-status">Status</label>
+            <select id="resource-status" required>
+              <option value="available">Disponível</option>
+              <option value="maintenance">Em Manutenção</option>
+              <option value="inactive">Inativo</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="resource-description">Descrição</label>
+          <textarea id="resource-description" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Horários de Funcionamento</label>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="opening-time">Abertura</label>
+              <input type="time" id="opening-time" required>
+            </div>
+
+            <div class="form-group">
+              <label for="closing-time">Fechamento</label>
+              <input type="time" id="closing-time" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="cancelAddResourceBtn">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar Recurso</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
   <script>
     const notificationBtn = document.getElementById('notificationBtn');
     const notificationsDropdown = document.getElementById('notificationsDropdown');
@@ -611,10 +702,12 @@
     dateRangeDropdown.addEventListener('click', (e) => e.stopPropagation());
 
     const bookingModal = document.getElementById('bookingModal');
+    const addResourceModal = document.getElementById('addResourceModal');
     const bookingBtns = document.querySelectorAll('.court-action-btn.btn-primary');
     const addResourceBtn = document.getElementById('addResourceBtn');
     const closeBtns = document.querySelectorAll('.close-btn');
     const backToCalendarBtn = document.getElementById('backToCalendarBtn');
+    const cancelAddResourceBtn = document.getElementById('cancelAddResourceBtn');
     const bookingForm = document.getElementById('bookingForm');
     const courtCalendar = document.querySelector('.court-calendar');
     const resourceName = document.getElementById('resourceName');
@@ -630,9 +723,14 @@
       });
     });
 
+    addResourceBtn.addEventListener('click', () => {
+      addResourceModal.classList.add('active');
+    });
+
     closeBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         bookingModal.classList.remove('active');
+        addResourceModal.classList.remove('active');
       });
     });
 
@@ -641,9 +739,16 @@
       courtCalendar.style.display = 'block';
     });
 
+    cancelAddResourceBtn.addEventListener('click', () => {
+      addResourceModal.classList.remove('active');
+    });
+
     document.addEventListener('click', (e) => {
       if (e.target === bookingModal) {
         bookingModal.classList.remove('active');
+      }
+      if (e.target === addResourceModal) {
+        addResourceModal.classList.remove('active');
       }
     });
 
@@ -684,13 +789,13 @@
         const dayIndex = Array.from(slot.parentElement.children).indexOf(slot) % 8;
         const days = ['', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
         const day = days[dayIndex];
-        
+
         const dateInput = document.getElementById('date');
         const startTimeInput = document.getElementById('start-time');
         
         const targetDate = new Date(currentWeekStart);
         targetDate.setDate(currentWeekStart.getDate() + dayIndex - 1);
-
+        
         const formattedDate = targetDate.toISOString().split('T')[0];
         dateInput.value = formattedDate;
         
@@ -703,9 +808,6 @@
         courtCalendar.style.display = 'none';
         bookingForm.style.display = 'block';
       });
-    });
-
-    window.addEventListener('load', () => {
     });
   </script>
 </body>
